@@ -1,19 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { AlertTriangle, Loader2, Search, SlidersHorizontal } from "lucide-react";
 import { ExerciseCard } from "@/components/treino/ExerciseCard";
 import { MuscleFilter } from "@/components/treino/MuscleFilter";
 import { PageHeader } from "@/components/treino/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DIFFICULTIES,
-  EQUIPMENT_OPTIONS,
-  MUSCLE_GROUPS,
-  exercises,
-  type Difficulty,
-  type Equipment,
-} from "@/data/exercises";
+import { exercisesQueryOptions, uniqueValues } from "@/lib/exercises-api";
 import { useTreino } from "@/lib/treino-store";
 import { cn } from "@/lib/utils";
 
@@ -29,8 +23,10 @@ export const Route = createFileRoute("/app/exercicios/")({
       { property: "og:title", content: "Biblioteca de exercícios — TREINÔ" },
       {
         property: "og:description",
-        content: "Mais de 20 exercícios com execução passo a passo e erros comuns.",
+        content: "Exercícios com execução passo a passo, vídeos e erros comuns.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Biblioteca,
@@ -38,36 +34,50 @@ export const Route = createFileRoute("/app/exercicios/")({
 
 function Biblioteca() {
   const { favorites, toggleFavorite } = useTreino();
+  const { data, isPending, isError, error, refetch, isFetching } = useQuery(exercisesQueryOptions);
   const [query, setQuery] = useState("");
   const [muscle, setMuscle] = useState("Todos");
   const [showFilters, setShowFilters] = useState(false);
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
-  const [difficulty, setDifficulty] = useState<Difficulty[]>([]);
+  const [equipment, setEquipment] = useState<string[]>([]);
+  const [difficulty, setDifficulty] = useState<string[]>([]);
+
+  const list = useMemo(() => data ?? [], [data]);
+  const muscleOptions = useMemo(() => uniqueValues(list, "muscle_group"), [list]);
+  const equipmentOptions = useMemo(() => uniqueValues(list, "equipment"), [list]);
+  const difficultyOptions = useMemo(() => uniqueValues(list, "difficulty"), [list]);
 
   const filtered = useMemo(
     () =>
-      exercises.filter((e) => {
+      list.filter((e) => {
+        const term = query.trim().toLowerCase();
         const matchQuery =
-          !query ||
-          e.name.toLowerCase().includes(query.toLowerCase()) ||
-          e.targetMuscle.toLowerCase().includes(query.toLowerCase());
-        const matchMuscle = muscle === "Todos" || e.muscleGroup === muscle;
+          !term ||
+          e.name.toLowerCase().includes(term) ||
+          e.target_muscle.toLowerCase().includes(term) ||
+          e.muscle_group.toLowerCase().includes(term);
+        const matchMuscle = muscle === "Todos" || e.muscle_group === muscle;
         const matchEquip = equipment.length === 0 || equipment.includes(e.equipment);
         const matchDiff = difficulty.length === 0 || difficulty.includes(e.difficulty);
         return matchQuery && matchMuscle && matchEquip && matchDiff;
       }),
-    [query, muscle, equipment, difficulty],
+    [list, query, muscle, equipment, difficulty],
   );
 
-  const toggle = <T,>(list: T[], set: (v: T[]) => void, value: T) =>
-    set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+  const toggle = (values: string[], set: (v: string[]) => void, value: string) =>
+    set(values.includes(value) ? values.filter((v) => v !== value) : [...values, value]);
 
   return (
     <div className="space-y-5">
       <PageHeader
         eyebrow="EXERCÍCIOS"
         title="Biblioteca"
-        subtitle={`${filtered.length} exercícios disponíveis`}
+        subtitle={
+          isPending
+            ? "Carregando exercícios…"
+            : isError
+              ? "Não foi possível carregar"
+              : `${filtered.length} exercícios disponíveis`
+        }
       />
 
       <div className="flex gap-2">
@@ -89,11 +99,13 @@ function Biblioteca() {
         </Button>
       </div>
 
-      <MuscleFilter
-        options={["Todos", ...MUSCLE_GROUPS]}
-        value={muscle}
-        onChange={setMuscle}
-      />
+      {muscleOptions.length > 0 && (
+        <MuscleFilter
+          options={["Todos", ...muscleOptions]}
+          value={muscle}
+          onChange={setMuscle}
+        />
+      )}
 
       {showFilters && (
         <section className="surface animate-scale-in space-y-4 p-4">
@@ -102,7 +114,7 @@ function Biblioteca() {
               EQUIPAMENTO
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {EQUIPMENT_OPTIONS.map((eq) => (
+              {equipmentOptions.map((eq) => (
                 <Chip
                   key={eq}
                   label={eq}
@@ -117,7 +129,7 @@ function Biblioteca() {
               DIFICULDADE
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {DIFFICULTIES.map((d) => (
+              {difficultyOptions.map((d) => (
                 <Chip
                   key={d}
                   label={d}
@@ -142,7 +154,36 @@ function Biblioteca() {
         </section>
       )}
 
-      {filtered.length === 0 ? (
+      {isPending ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="surface flex items-center gap-3 p-3">
+              <div className="size-20 shrink-0 animate-pulse rounded-lg bg-secondary" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-2/3 animate-pulse rounded bg-secondary" />
+                <div className="h-3 w-1/2 animate-pulse rounded bg-secondary" />
+                <div className="h-5 w-24 animate-pulse rounded bg-secondary" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : isError ? (
+        <div className="rounded-2xl border border-flame/30 bg-flame/8 p-6 text-center">
+          <AlertTriangle className="mx-auto size-6 text-flame" />
+          <p className="mt-2 font-display font-bold">Erro ao carregar os exercícios.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {error instanceof Error ? error.message : "Tente novamente em instantes."}
+          </p>
+          <Button
+            variant="secondary"
+            className="press mt-4 font-bold"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+          >
+            {isFetching && <Loader2 className="size-4 animate-spin" />} Tentar novamente
+          </Button>
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="surface p-8 text-center">
           <p className="font-display font-bold">Nada por aqui.</p>
           <p className="mt-1 text-sm text-muted-foreground">

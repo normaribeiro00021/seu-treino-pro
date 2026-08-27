@@ -1,5 +1,4 @@
 import { Dumbbell } from "lucide-react";
-import type { Exercise } from "@/data/exercises";
 import { cn } from "@/lib/utils";
 
 const TONES: Record<string, string> = {
@@ -18,7 +17,7 @@ export function ExerciseThumb({
   className,
   iconClassName,
 }: {
-  exercise: Exercise;
+  exercise: { name?: string; muscleGroup: string; thumbnailUrl?: string | null };
   className?: string;
   iconClassName?: string;
 }) {
@@ -30,18 +29,29 @@ export function ExerciseThumb({
         className,
       )}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(115deg, transparent 0 10px, oklch(1 0 0 / 0.045) 10px 12px)",
-        }}
-      />
-      <Dumbbell className={cn("relative size-7 text-foreground/70", iconClassName)} />
-      <span className="absolute bottom-1 left-2 text-[0.6rem] font-bold tracking-widest text-foreground/50">
-        {exercise.muscleGroup.toUpperCase()}
-      </span>
+      {exercise.thumbnailUrl ? (
+        <img
+          src={exercise.thumbnailUrl}
+          alt={exercise.name ? `Execução do exercício ${exercise.name}` : "Exercício"}
+          loading="lazy"
+          className="absolute inset-0 size-full object-cover"
+        />
+      ) : (
+        <>
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-40"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(115deg, transparent 0 10px, oklch(1 0 0 / 0.045) 10px 12px)",
+            }}
+          />
+          <Dumbbell className={cn("relative size-7 text-foreground/70", iconClassName)} />
+          <span className="absolute bottom-1 left-2 text-[0.6rem] font-bold tracking-widest text-foreground/50">
+            {exercise.muscleGroup.toUpperCase()}
+          </span>
+        </>
+      )}
     </div>
   );
 }
