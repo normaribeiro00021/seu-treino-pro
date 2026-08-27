@@ -59,7 +59,7 @@ function Medidas() {
     quadril: "",
   });
 
-  const latest = history[history.length - 1];
+  const latest = history[history.length - 1] as Measurement;
   const previous = history[history.length - 2];
 
   const chartData = useMemo(

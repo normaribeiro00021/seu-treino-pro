@@ -31,7 +31,16 @@ const we = (
   restSeconds: number,
   previousWeight: number,
   notes?: string,
-): WorkoutExercise => ({ id, exerciseId, sets, repsMin, repsMax, restSeconds, previousWeight, notes });
+): WorkoutExercise => ({
+  id,
+  exerciseId,
+  sets,
+  repsMin,
+  repsMax,
+  restSeconds,
+  previousWeight,
+  ...(notes ? { notes } : {}),
+});
 
 export const workouts: Workout[] = [
   {
