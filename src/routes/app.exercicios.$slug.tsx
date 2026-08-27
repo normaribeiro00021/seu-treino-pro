@@ -1,32 +1,24 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, Heart, Info } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, ArrowLeft, Heart, Info, Loader2 } from "lucide-react";
 import { ExerciseThumb } from "@/components/treino/ExerciseThumb";
 import { Button } from "@/components/ui/button";
-import { getExerciseBySlug } from "@/data/exercises";
+import { exerciseBySlugQueryOptions, type DbExercise } from "@/lib/exercises-api";
 import { useTreino } from "@/lib/treino-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/exercicios/$slug")({
-  loader: ({ params }) => {
-    const exercise = getExerciseBySlug(params.slug);
-    if (!exercise) throw notFound();
-    return { exercise };
-  },
-  head: ({ loaderData }) => {
-    if (!loaderData) {
-      return {
-        meta: [{ title: "Exercício não encontrado — TREINÔ" }, { name: "robots", content: "noindex" }],
-      };
-    }
-    const { exercise } = loaderData;
-    const title = `${exercise.name} — como fazer | TREINÔ`;
-    const description = `Execução passo a passo de ${exercise.name}: músculo principal ${exercise.targetMuscle}, equipamento ${exercise.equipment} e erros comuns.`;
+  head: ({ params }) => {
+    const title = "Exercício — como fazer | TREINÔ";
+    const description = `Execução passo a passo, músculos trabalhados e erros comuns do exercício ${params.slug.replace(/-/g, " ")}.`;
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
     };
   },
@@ -35,10 +27,10 @@ export const Route = createFileRoute("/app/exercicios/$slug")({
   component: ExerciseDetail,
 });
 
-function Fallback() {
+function Fallback({ message }: { message?: string }) {
   return (
     <div className="surface p-8 text-center">
-      <p className="font-display font-bold">Exercício não encontrado.</p>
+      <p className="font-display font-bold">{message ?? "Exercício não encontrado."}</p>
       <Button asChild variant="secondary" className="mt-4">
         <Link to="/app/exercicios">Voltar para a biblioteca</Link>
       </Button>
@@ -47,8 +39,50 @@ function Fallback() {
 }
 
 function ExerciseDetail() {
-  const { exercise } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const { data, isPending, isError, error, refetch, isFetching } = useQuery(
+    exerciseBySlugQueryOptions(slug),
+  );
   const { isFavorite, toggleFavorite } = useTreino();
+
+  if (isPending) {
+    return (
+      <div className="space-y-5">
+        <div className="h-5 w-32 animate-pulse rounded bg-secondary" />
+        <div className="h-8 w-3/4 animate-pulse rounded bg-secondary" />
+        <div className="h-52 w-full animate-pulse rounded-2xl bg-secondary sm:h-72" />
+        <div className="grid gap-3 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-20 animate-pulse rounded-2xl bg-secondary" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-2xl border border-flame/30 bg-flame/8 p-6 text-center">
+        <AlertTriangle className="mx-auto size-6 text-flame" />
+        <p className="mt-2 font-display font-bold">Erro ao carregar o exercício.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : "Tente novamente em instantes."}
+        </p>
+        <Button
+          variant="secondary"
+          className="press mt-4 font-bold"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+        >
+          {isFetching && <Loader2 className="size-4 animate-spin" />} Tentar novamente
+        </Button>
+      </div>
+    );
+  }
+
+  if (!data) return <Fallback />;
+
+  const exercise = data;
   const fav = isFavorite(exercise.id);
 
   return (
@@ -73,21 +107,17 @@ function ExerciseDetail() {
       <header className="animate-rise-in">
         <h1 className="text-2xl font-extrabold sm:text-3xl">{exercise.name}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {exercise.muscleGroup} · {exercise.difficulty}
+          {exercise.muscle_group} · {exercise.difficulty}
         </p>
       </header>
 
-      <ExerciseThumb
-        exercise={exercise}
-        className="h-52 w-full rounded-2xl border border-border sm:h-72"
-        iconClassName="size-14"
-      />
+      <ExerciseMedia exercise={exercise} />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <InfoBlock title="Músculo principal" items={[exercise.targetMuscle]} />
+        <InfoBlock title="Músculo principal" items={[exercise.target_muscle]} />
         <InfoBlock
           title="Músculos secundários"
-          items={exercise.secondaryMuscles.length ? exercise.secondaryMuscles : ["—"]}
+          items={exercise.secondary_muscles?.length ? exercise.secondary_muscles : ["—"]}
         />
         <InfoBlock title="Equipamento" items={[exercise.equipment]} />
       </div>
@@ -97,7 +127,7 @@ function ExerciseDetail() {
           <Info className="size-4 text-primary" /> EXECUÇÃO
         </h2>
         <ol className="mt-3 space-y-2.5">
-          {exercise.instructions.map((step, i) => (
+          {(exercise.instructions ?? []).map((step, i) => (
             <li key={step} className="flex gap-3 text-sm text-muted-foreground">
               <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-secondary text-xs font-bold text-primary">
                 {i + 1}
@@ -108,19 +138,67 @@ function ExerciseDetail() {
         </ol>
       </section>
 
-      <section className="rounded-2xl border border-flame/30 bg-flame/8 p-4">
-        <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-flame">
-          <AlertTriangle className="size-4" /> ERROS COMUNS
-        </h2>
-        <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-          {exercise.commonMistakes.map((m) => (
-            <li key={m} className="flex gap-2">
-              <span className="text-flame">•</span> {m}
-            </li>
-          ))}
-        </ul>
-      </section>
+      {(exercise.common_mistakes?.length ?? 0) > 0 && (
+        <section className="rounded-2xl border border-flame/30 bg-flame/8 p-4">
+          <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-flame">
+            <AlertTriangle className="size-4" /> ERROS COMUNS
+          </h2>
+          <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+            {(exercise.common_mistakes ?? []).map((m) => (
+              <li key={m} className="flex gap-2">
+                <span className="text-flame">•</span> {m}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
+  );
+}
+
+function ExerciseMedia({ exercise }: { exercise: DbExercise }) {
+  const frame = "h-52 w-full overflow-hidden rounded-2xl border border-border sm:h-72";
+
+  if (exercise.video_url) {
+    return (
+      <div className={cn(frame, "bg-secondary")}>
+        <video
+          src={exercise.video_url}
+          poster={exercise.thumbnail_url ?? undefined}
+          loop
+          autoPlay
+          muted
+          playsInline
+          controls
+          aria-label={`Vídeo de execução do exercício ${exercise.name}`}
+          className="size-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  if (exercise.gif_url) {
+    return (
+      <div className={cn(frame, "bg-secondary")}>
+        <img
+          src={exercise.gif_url}
+          alt={`Animação da execução do exercício ${exercise.name}`}
+          className="size-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <ExerciseThumb
+      exercise={{
+        name: exercise.name,
+        muscleGroup: exercise.muscle_group,
+        thumbnailUrl: exercise.thumbnail_url,
+      }}
+      className={frame}
+      iconClassName="size-14"
+    />
   );
 }
 
