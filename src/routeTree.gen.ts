@@ -16,6 +16,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AppConcluidoRouteImport } from './routes/app.concluido'
 import { Route as AppEvolucaoRouteImport } from './routes/app.evolucao'
 import { Route as AppInicioRouteImport } from './routes/app.inicio'
+import { Route as AppMedidasRouteImport } from './routes/app.medidas'
 import { Route as AppTreinoRouteImport } from './routes/app.treino'
 import { Route as AppExerciciosIndexRouteImport } from './routes/app.exercicios.index'
 import { Route as AppExerciciosSlugRouteImport } from './routes/app.exercicios.$slug'
@@ -56,6 +57,11 @@ const AppInicioRoute = AppInicioRouteImport.update({
   path: '/inicio',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMedidasRoute = AppMedidasRouteImport.update({
+  id: '/medidas',
+  path: '/medidas',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTreinoRoute = AppTreinoRouteImport.update({
   id: '/treino',
   path: '/treino',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/app/concluido': typeof AppConcluidoRoute
   '/app/evolucao': typeof AppEvolucaoRoute
   '/app/inicio': typeof AppInicioRoute
+  '/app/medidas': typeof AppMedidasRoute
   '/app/treino': typeof AppTreinoRoute
   '/app/exercicios/$slug': typeof AppExerciciosSlugRoute
   '/app/sessao/$workoutId': typeof AppSessaoWorkoutIdRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/app/concluido': typeof AppConcluidoRoute
   '/app/evolucao': typeof AppEvolucaoRoute
   '/app/inicio': typeof AppInicioRoute
+  '/app/medidas': typeof AppMedidasRoute
   '/app/treino': typeof AppTreinoRoute
   '/app/exercicios/$slug': typeof AppExerciciosSlugRoute
   '/app/sessao/$workoutId': typeof AppSessaoWorkoutIdRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/app/concluido': typeof AppConcluidoRoute
   '/app/evolucao': typeof AppEvolucaoRoute
   '/app/inicio': typeof AppInicioRoute
+  '/app/medidas': typeof AppMedidasRoute
   '/app/treino': typeof AppTreinoRoute
   '/app/exercicios/$slug': typeof AppExerciciosSlugRoute
   '/app/sessao/$workoutId': typeof AppSessaoWorkoutIdRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/app/concluido'
     | '/app/evolucao'
     | '/app/inicio'
+    | '/app/medidas'
     | '/app/treino'
     | '/app/exercicios/$slug'
     | '/app/sessao/$workoutId'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/app/concluido'
     | '/app/evolucao'
     | '/app/inicio'
+    | '/app/medidas'
     | '/app/treino'
     | '/app/exercicios/$slug'
     | '/app/sessao/$workoutId'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/app/concluido'
     | '/app/evolucao'
     | '/app/inicio'
+    | '/app/medidas'
     | '/app/treino'
     | '/app/exercicios/$slug'
     | '/app/sessao/$workoutId'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInicioRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/medidas': {
+      id: '/app/medidas'
+      path: '/medidas'
+      fullPath: '/app/medidas'
+      preLoaderRoute: typeof AppMedidasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/treino': {
       id: '/app/treino'
       path: '/treino'
@@ -252,6 +271,7 @@ interface AppRouteChildren {
   AppConcluidoRoute: typeof AppConcluidoRoute
   AppEvolucaoRoute: typeof AppEvolucaoRoute
   AppInicioRoute: typeof AppInicioRoute
+  AppMedidasRoute: typeof AppMedidasRoute
   AppTreinoRoute: typeof AppTreinoRoute
   AppExerciciosSlugRoute: typeof AppExerciciosSlugRoute
   AppSessaoWorkoutIdRoute: typeof AppSessaoWorkoutIdRoute
@@ -262,6 +282,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppConcluidoRoute: AppConcluidoRoute,
   AppEvolucaoRoute: AppEvolucaoRoute,
   AppInicioRoute: AppInicioRoute,
+  AppMedidasRoute: AppMedidasRoute,
   AppTreinoRoute: AppTreinoRoute,
   AppExerciciosSlugRoute: AppExerciciosSlugRoute,
   AppSessaoWorkoutIdRoute: AppSessaoWorkoutIdRoute,
