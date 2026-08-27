@@ -14,7 +14,11 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AppConcluidoRouteImport } from './routes/app.concluido'
+import { Route as AppEvolucaoRouteImport } from './routes/app.evolucao'
 import { Route as AppInicioRouteImport } from './routes/app.inicio'
+import { Route as AppMedidasRouteImport } from './routes/app.medidas'
+import { Route as AppPerfilRouteImport } from './routes/app.perfil'
+import { Route as AppProgramasRouteImport } from './routes/app.programas'
 import { Route as AppTreinoRouteImport } from './routes/app.treino'
 import { Route as AppExerciciosIndexRouteImport } from './routes/app.exercicios.index'
 import { Route as AppExerciciosSlugRouteImport } from './routes/app.exercicios.$slug'
@@ -45,9 +49,29 @@ const AppConcluidoRoute = AppConcluidoRouteImport.update({
   path: '/concluido',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEvolucaoRoute = AppEvolucaoRouteImport.update({
+  id: '/evolucao',
+  path: '/evolucao',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInicioRoute = AppInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMedidasRoute = AppMedidasRouteImport.update({
+  id: '/medidas',
+  path: '/medidas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPerfilRoute = AppPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProgramasRoute = AppProgramasRouteImport.update({
+  id: '/programas',
+  path: '/programas',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTreinoRoute = AppTreinoRouteImport.update({
@@ -77,7 +101,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/app/concluido': typeof AppConcluidoRoute
+  '/app/evolucao': typeof AppEvolucaoRoute
   '/app/inicio': typeof AppInicioRoute
+  '/app/medidas': typeof AppMedidasRoute
+  '/app/perfil': typeof AppPerfilRoute
+  '/app/programas': typeof AppProgramasRoute
   '/app/treino': typeof AppTreinoRoute
   '/app/exercicios/$slug': typeof AppExerciciosSlugRoute
   '/app/sessao/$workoutId': typeof AppSessaoWorkoutIdRoute
@@ -89,7 +117,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/app/concluido': typeof AppConcluidoRoute
+  '/app/evolucao': typeof AppEvolucaoRoute
   '/app/inicio': typeof AppInicioRoute
+  '/app/medidas': typeof AppMedidasRoute
+  '/app/perfil': typeof AppPerfilRoute
+  '/app/programas': typeof AppProgramasRoute
   '/app/treino': typeof AppTreinoRoute
   '/app/exercicios/$slug': typeof AppExerciciosSlugRoute
   '/app/sessao/$workoutId': typeof AppSessaoWorkoutIdRoute
@@ -102,7 +134,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/app/concluido': typeof AppConcluidoRoute
+  '/app/evolucao': typeof AppEvolucaoRoute
   '/app/inicio': typeof AppInicioRoute
+  '/app/medidas': typeof AppMedidasRoute
+  '/app/perfil': typeof AppPerfilRoute
+  '/app/programas': typeof AppProgramasRoute
   '/app/treino': typeof AppTreinoRoute
   '/app/exercicios/$slug': typeof AppExerciciosSlugRoute
   '/app/sessao/$workoutId': typeof AppSessaoWorkoutIdRoute
@@ -116,7 +152,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/app/concluido'
+    | '/app/evolucao'
     | '/app/inicio'
+    | '/app/medidas'
+    | '/app/perfil'
+    | '/app/programas'
     | '/app/treino'
     | '/app/exercicios/$slug'
     | '/app/sessao/$workoutId'
@@ -128,7 +168,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/app/concluido'
+    | '/app/evolucao'
     | '/app/inicio'
+    | '/app/medidas'
+    | '/app/perfil'
+    | '/app/programas'
     | '/app/treino'
     | '/app/exercicios/$slug'
     | '/app/sessao/$workoutId'
@@ -140,7 +184,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/app/concluido'
+    | '/app/evolucao'
     | '/app/inicio'
+    | '/app/medidas'
+    | '/app/perfil'
+    | '/app/programas'
     | '/app/treino'
     | '/app/exercicios/$slug'
     | '/app/sessao/$workoutId'
@@ -191,11 +239,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConcluidoRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/evolucao': {
+      id: '/app/evolucao'
+      path: '/evolucao'
+      fullPath: '/app/evolucao'
+      preLoaderRoute: typeof AppEvolucaoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/inicio': {
       id: '/app/inicio'
       path: '/inicio'
       fullPath: '/app/inicio'
       preLoaderRoute: typeof AppInicioRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/medidas': {
+      id: '/app/medidas'
+      path: '/medidas'
+      fullPath: '/app/medidas'
+      preLoaderRoute: typeof AppMedidasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/perfil': {
+      id: '/app/perfil'
+      path: '/perfil'
+      fullPath: '/app/perfil'
+      preLoaderRoute: typeof AppPerfilRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/programas': {
+      id: '/app/programas'
+      path: '/programas'
+      fullPath: '/app/programas'
+      preLoaderRoute: typeof AppProgramasRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/treino': {
@@ -231,7 +307,11 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppConcluidoRoute: typeof AppConcluidoRoute
+  AppEvolucaoRoute: typeof AppEvolucaoRoute
   AppInicioRoute: typeof AppInicioRoute
+  AppMedidasRoute: typeof AppMedidasRoute
+  AppPerfilRoute: typeof AppPerfilRoute
+  AppProgramasRoute: typeof AppProgramasRoute
   AppTreinoRoute: typeof AppTreinoRoute
   AppExerciciosSlugRoute: typeof AppExerciciosSlugRoute
   AppSessaoWorkoutIdRoute: typeof AppSessaoWorkoutIdRoute
@@ -240,7 +320,11 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppConcluidoRoute: AppConcluidoRoute,
+  AppEvolucaoRoute: AppEvolucaoRoute,
   AppInicioRoute: AppInicioRoute,
+  AppMedidasRoute: AppMedidasRoute,
+  AppPerfilRoute: AppPerfilRoute,
+  AppProgramasRoute: AppProgramasRoute,
   AppTreinoRoute: AppTreinoRoute,
   AppExerciciosSlugRoute: AppExerciciosSlugRoute,
   AppSessaoWorkoutIdRoute: AppSessaoWorkoutIdRoute,
