@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      exercises: {
+        Row: {
+          common_mistakes: string[]
+          created_at: string
+          difficulty: string
+          equipment: string
+          gif_url: string | null
+          id: string
+          instructions: string[]
+          muscle_group: string
+          name: string
+          secondary_muscles: string[]
+          slug: string
+          target_muscle: string
+          thumbnail_url: string | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          common_mistakes?: string[]
+          created_at?: string
+          difficulty: string
+          equipment: string
+          gif_url?: string | null
+          id?: string
+          instructions?: string[]
+          muscle_group: string
+          name: string
+          secondary_muscles?: string[]
+          slug: string
+          target_muscle: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          common_mistakes?: string[]
+          created_at?: string
+          difficulty?: string
+          equipment?: string
+          gif_url?: string | null
+          id?: string
+          instructions?: string[]
+          muscle_group?: string
+          name?: string
+          secondary_muscles?: string[]
+          slug?: string
+          target_muscle?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
