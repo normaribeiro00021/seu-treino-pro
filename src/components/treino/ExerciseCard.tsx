@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Heart } from "lucide-react";
-import type { Exercise } from "@/data/exercises";
+import type { DbExercise } from "@/lib/exercises-api";
 import { cn } from "@/lib/utils";
 import { ExerciseThumb } from "./ExerciseThumb";
 
@@ -9,7 +9,7 @@ export function ExerciseCard({
   favorite,
   onToggleFavorite,
 }: {
-  exercise: Exercise;
+  exercise: DbExercise;
   favorite: boolean;
   onToggleFavorite: () => void;
 }) {
@@ -20,10 +20,19 @@ export function ExerciseCard({
         params={{ slug: exercise.slug }}
         className="flex items-center gap-3 p-3"
       >
-        <ExerciseThumb exercise={exercise} className="size-20 shrink-0 rounded-lg" />
+        <ExerciseThumb
+          exercise={{
+            name: exercise.name,
+            muscleGroup: exercise.muscle_group,
+            thumbnailUrl: exercise.thumbnail_url,
+          }}
+          className="size-20 shrink-0 rounded-lg"
+        />
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-sm font-bold">{exercise.name}</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">{exercise.targetMuscle}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {exercise.muscle_group} · {exercise.target_muscle}
+          </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <span className="rounded-md bg-secondary px-2 py-0.5 text-[0.65rem] font-semibold text-muted-foreground">
               {exercise.equipment}
