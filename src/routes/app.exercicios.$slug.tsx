@@ -88,6 +88,7 @@ function ExerciseDetail() {
 
   return (
     <div className="space-y-5">
+      <DebugSupabasePanel />
       <div className="flex items-center justify-between gap-3">
         <Link
           to="/app/exercicios"

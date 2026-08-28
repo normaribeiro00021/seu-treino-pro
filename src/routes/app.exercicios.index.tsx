@@ -68,6 +68,7 @@ function Biblioteca() {
 
   return (
     <div className="space-y-5">
+      <DebugSupabasePanel />
       <PageHeader
         eyebrow="EXERCÍCIOS"
         title="Biblioteca"
