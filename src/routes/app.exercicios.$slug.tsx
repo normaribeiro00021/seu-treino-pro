@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { AlertTriangle, ArrowLeft, Heart, Info, Loader2 } from "lucide-react";
 import { ExerciseThumb } from "@/components/treino/ExerciseThumb";
 import { Button } from "@/components/ui/button";
