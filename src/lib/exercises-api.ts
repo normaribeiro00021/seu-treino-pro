@@ -17,15 +17,12 @@ export interface DbExercise {
   thumbnail_url: string | null;
 }
 
-const COLUMNS =
-  "id, name, slug, muscle_group, target_muscle, secondary_muscles, equipment, difficulty, instructions, common_mistakes, gif_url, video_url, thumbnail_url";
-
 export const exercisesQueryOptions = queryOptions({
   queryKey: ["exercises"],
   queryFn: async (): Promise<DbExercise[]> => {
     const { data, error } = await supabase
       .from("exercises")
-      .select(COLUMNS)
+      .select("*")
       .order("name", { ascending: true });
     if (error) throw new Error(error.message);
     return (data ?? []) as DbExercise[];
@@ -38,7 +35,7 @@ export const exerciseBySlugQueryOptions = (slug: string) =>
     queryFn: async (): Promise<DbExercise | null> => {
       const { data, error } = await supabase
         .from("exercises")
-        .select(COLUMNS)
+        .select("*")
         .eq("slug", slug)
         .maybeSingle();
       if (error) throw new Error(error.message);
