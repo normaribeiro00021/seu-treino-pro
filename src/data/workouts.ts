@@ -1,8 +1,9 @@
-import type { Difficulty } from "./exercises";
+export type Difficulty = "Iniciante" | "Intermediário" | "Avançado";
 
 export interface WorkoutExercise {
   id: string;
-  exerciseId: string;
+  /** Slug do exercício na tabela public.exercises do Supabase. */
+  exerciseSlug: string;
   sets: number;
   repsMin: number;
   repsMax: number;
@@ -24,7 +25,7 @@ export interface Workout {
 
 const we = (
   id: string,
-  exerciseId: string,
+  exerciseSlug: string,
   sets: number,
   repsMin: number,
   repsMax: number,
@@ -33,7 +34,7 @@ const we = (
   notes?: string,
 ): WorkoutExercise => ({
   id,
-  exerciseId,
+  exerciseSlug,
   sets,
   repsMin,
   repsMax,
@@ -51,13 +52,13 @@ export const workouts: Workout[] = [
     level: "Intermediário",
     estimatedMinutes: 52,
     exercises: [
-      we("wa-1", "ex-6", 4, 8, 10, 120, 60, "Progrida 2,5 kg quando fechar 10 reps."),
-      we("wa-2", "ex-7", 3, 10, 12, 90, 22),
-      we("wa-3", "ex-8", 3, 12, 15, 60, 35),
-      we("wa-4", "ex-22", 3, 12, 20, 60, 0),
-      we("wa-5", "ex-9", 3, 12, 15, 60, 30),
-      we("wa-6", "ex-10", 3, 10, 12, 75, 25),
-      we("wa-7", "ex-19", 3, 30, 45, 45, 0, "Tempo em segundos."),
+      we("wa-1", "supino-reto-com-barra", 4, 8, 10, 120, 60, "Progrida 2,5 kg quando fechar 10 reps."),
+      we("wa-2", "supino-inclinado-com-halteres", 3, 10, 12, 90, 22),
+      we("wa-3", "crucifixo-na-maquina", 3, 12, 15, 60, 35),
+      we("wa-4", "flexao-de-braco", 3, 12, 20, 60, 0),
+      we("wa-5", "triceps-na-polia-com-corda", 3, 12, 15, 60, 30),
+      we("wa-6", "triceps-testa-com-barra-w", 3, 10, 12, 75, 25),
+      we("wa-7", "prancha-abdominal", 3, 30, 45, 45, 0, "Tempo em segundos."),
     ],
   },
   {
@@ -68,14 +69,14 @@ export const workouts: Workout[] = [
     level: "Intermediário",
     estimatedMinutes: 55,
     exercises: [
-      we("wb-1", "ex-1", 3, 10, 12, 90, 55, "Segure 1s na contração."),
-      we("wb-2", "ex-2", 4, 8, 10, 120, 50),
-      we("wb-3", "ex-3", 3, 10, 12, 90, 45),
-      we("wb-4", "ex-24", 3, 15, 20, 45, 0),
-      we("wb-5", "ex-4", 3, 10, 12, 75, 25),
-      we("wb-6", "ex-5", 3, 10, 12, 60, 14),
-      we("wb-7", "ex-20", 3, 12, 15, 45, 25),
-      we("wb-8", "ex-19", 3, 30, 45, 45, 0, "Tempo em segundos."),
+      we("wb-1", "puxada-frontal-na-polia", 3, 10, 12, 90, 55, "Segure 1s na contração."),
+      we("wb-2", "remada-curvada-com-barra", 4, 8, 10, 120, 50),
+      we("wb-3", "remada-baixa-no-cabo", 3, 10, 12, 90, 45),
+      we("wb-4", "face-pull-com-elastico", 3, 15, 20, 45, 0),
+      we("wb-5", "rosca-direta-com-barra", 3, 10, 12, 75, 25),
+      we("wb-6", "rosca-martelo-com-halteres", 3, 10, 12, 60, 14),
+      we("wb-7", "abdominal-no-cabo", 3, 12, 15, 45, 25),
+      we("wb-8", "prancha-abdominal", 3, 30, 45, 45, 0, "Tempo em segundos."),
     ],
   },
   {
@@ -86,12 +87,12 @@ export const workouts: Workout[] = [
     level: "Intermediário",
     estimatedMinutes: 58,
     exercises: [
-      we("wc-1", "ex-11", 4, 6, 8, 150, 70),
-      we("wc-2", "ex-12", 4, 10, 12, 120, 180),
-      we("wc-3", "ex-14", 3, 10, 12, 90, 40),
-      we("wc-4", "ex-13", 3, 12, 15, 60, 45),
-      we("wc-5", "ex-21", 3, 10, 12, 75, 16),
-      we("wc-6", "ex-15", 3, 10, 12, 90, 50),
+      we("wc-1", "agachamento-livre", 4, 6, 8, 150, 70),
+      we("wc-2", "leg-press-45", 4, 10, 12, 120, 180),
+      we("wc-3", "stiff-com-barra", 3, 10, 12, 90, 40),
+      we("wc-4", "cadeira-extensora", 3, 12, 15, 60, 45),
+      we("wc-5", "afundo-com-halteres", 3, 10, 12, 75, 16),
+      we("wc-6", "elevacao-de-quadril-com-barra", 3, 10, 12, 90, 50),
     ],
   },
   {
@@ -102,12 +103,12 @@ export const workouts: Workout[] = [
     level: "Intermediário",
     estimatedMinutes: 48,
     exercises: [
-      we("wd-1", "ex-17", 4, 8, 10, 105, 20),
-      we("wd-2", "ex-18", 4, 12, 15, 60, 10),
-      we("wd-3", "ex-24", 3, 15, 20, 45, 0),
-      we("wd-4", "ex-4", 3, 10, 12, 75, 25),
-      we("wd-5", "ex-9", 3, 12, 15, 60, 30),
-      we("wd-6", "ex-5", 3, 10, 12, 60, 14),
+      we("wd-1", "desenvolvimento-com-halteres", 4, 8, 10, 105, 20),
+      we("wd-2", "elevacao-lateral", 4, 12, 15, 60, 10),
+      we("wd-3", "face-pull-com-elastico", 3, 15, 20, 45, 0),
+      we("wd-4", "rosca-direta-com-barra", 3, 10, 12, 75, 25),
+      we("wd-5", "triceps-na-polia-com-corda", 3, 12, 15, 60, 30),
+      we("wd-6", "rosca-martelo-com-halteres", 3, 10, 12, 60, 14),
     ],
   },
 ];
