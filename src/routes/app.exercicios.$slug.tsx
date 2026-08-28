@@ -50,6 +50,7 @@ function ExerciseDetail() {
   if (isPending) {
     return (
       <div className="space-y-5">
+        <DebugSupabasePanel />
         <div className="h-5 w-32 animate-pulse rounded bg-secondary" />
         <div className="h-8 w-3/4 animate-pulse rounded bg-secondary" />
         <div className="h-52 w-full animate-pulse rounded-2xl bg-secondary sm:h-72" />
