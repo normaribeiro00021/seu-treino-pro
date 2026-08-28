@@ -65,7 +65,9 @@ function ExerciseDetail() {
 
   if (isError) {
     return (
-      <div className="rounded-2xl border border-flame/30 bg-flame/8 p-6 text-center">
+      <div className="space-y-5">
+        <DebugSupabasePanel />
+        <div className="rounded-2xl border border-flame/30 bg-flame/8 p-6 text-center">
         <AlertTriangle className="mx-auto size-6 text-flame" />
         <p className="mt-2 font-display font-bold">Erro ao carregar o exercício.</p>
         <p className="mt-1 text-sm text-muted-foreground">
