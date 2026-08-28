@@ -1,13 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, Check, ChevronRight, Info, Timer } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, ChevronRight, Info, Loader2, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { ExerciseThumb } from "@/components/treino/ExerciseThumb";
 import { RestTimer } from "@/components/treino/RestTimer";
 import { SetTracker } from "@/components/treino/SetTracker";
 import { WorkoutProgress } from "@/components/treino/WorkoutProgress";
 import { Button } from "@/components/ui/button";
-import { getExerciseById } from "@/data/exercises";
+import { exercisesQueryOptions, type DbExercise } from "@/lib/exercises-api";
 import { getWorkout } from "@/data/workouts";
 import { useTreino } from "@/lib/treino-store";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,16 @@ function SessionPage() {
   const [openExercise, setOpenExercise] = useState<string | null>(null);
   const [rest, setRest] = useState<number | null>(null);
 
+  const { data: exercises, isPending, isError, error, refetch, isFetching } = useQuery(
+    exercisesQueryOptions,
+  );
+
+  const bySlug = useMemo(() => {
+    const map = new Map<string, DbExercise>();
+    for (const ex of exercises ?? []) map.set(ex.slug, ex);
+    return map;
+  }, [exercises]);
+
   useEffect(() => {
     if (workout) startSession(workout.id);
   }, [workout, startSession]);
@@ -45,8 +56,8 @@ function SessionPage() {
     if (!workout) return new Set<string>();
     return new Set(
       workout.exercises
-        .filter((we) => (logs[we.exerciseId]?.length ?? 0) >= we.sets)
-        .map((we) => we.exerciseId),
+        .filter((we) => (logs[we.exerciseSlug]?.length ?? 0) >= we.sets)
+        .map((we) => we.exerciseSlug),
     );
   }, [workout, logs]);
 
@@ -61,7 +72,39 @@ function SessionPage() {
     );
   }
 
-  const currentIndex = workout.exercises.findIndex((we) => !completedIds.has(we.exerciseId));
+  if (isPending) {
+    return (
+      <div className="space-y-4">
+        <div className="h-5 w-32 animate-pulse rounded bg-secondary" />
+        <div className="h-9 w-2/3 animate-pulse rounded bg-secondary" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="surface h-16 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-2xl border border-flame/30 bg-flame/8 p-6 text-center">
+        <AlertTriangle className="mx-auto size-6 text-flame" />
+        <p className="mt-2 font-display font-bold">Erro ao carregar os exercícios.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : "Tente novamente em instantes."}
+        </p>
+        <Button
+          variant="secondary"
+          className="press mt-4 font-bold"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+        >
+          {isFetching && <Loader2 className="size-4 animate-spin" />} Tentar novamente
+        </Button>
+      </div>
+    );
+  }
+
+  const currentIndex = workout.exercises.findIndex((we) => !completedIds.has(we.exerciseSlug));
   const done = completedIds.size;
   const total = workout.exercises.length;
 
@@ -71,7 +114,7 @@ function SessionPage() {
     const best = allLogs.reduce<{ exercise: string; weight: number } | null>((acc, log) => {
       if (!acc || log.weight > acc.weight) {
         const found = Object.entries(logs).find(([, sets]) => sets.includes(log));
-        const ex = found ? getExerciseById(found[0]) : undefined;
+        const ex = found ? bySlug.get(found[0]) : undefined;
         return { exercise: ex?.name ?? workout.focus, weight: log.weight };
       }
       return acc;
@@ -89,12 +132,12 @@ function SessionPage() {
   };
 
   const open = openExercise
-    ? workout.exercises.find((we) => we.exerciseId === openExercise)
+    ? workout.exercises.find((we) => we.exerciseSlug === openExercise)
     : undefined;
-  const openExerciseData = open ? getExerciseById(open.exerciseId) : undefined;
+  const openExerciseData = open ? bySlug.get(open.exerciseSlug) : undefined;
 
   if (open && openExerciseData) {
-    const setLogs = logs[open.exerciseId] ?? [];
+    const setLogs = logs[open.exerciseSlug] ?? [];
     return (
       <div className="space-y-5">
         <button
@@ -114,7 +157,11 @@ function SessionPage() {
         </header>
 
         <ExerciseThumb
-          exercise={openExerciseData}
+          exercise={{
+            name: openExerciseData.name,
+            muscleGroup: openExerciseData.muscle_group,
+            thumbnailUrl: openExerciseData.thumbnail_url,
+          }}
           className="h-44 w-full rounded-2xl border border-border sm:h-56"
           iconClassName="size-12"
         />
@@ -125,11 +172,11 @@ function SessionPage() {
           previousWeight={open.previousWeight}
           logs={setLogs}
           onComplete={(set) => {
-            logSet(open.exerciseId, set);
+            logSet(open.exerciseSlug, set);
             toast.success(`Série salva: ${set.weight} kg × ${set.reps}`);
             if (setLogs.length + 1 < open.sets) setRest(open.restSeconds);
           }}
-          onUndo={() => undoSet(open.exerciseId)}
+          onUndo={() => undoSet(open.exerciseSlug)}
         />
 
         <section className="surface p-4">
@@ -137,7 +184,7 @@ function SessionPage() {
             <Info className="size-4 text-primary" /> EXECUÇÃO
           </h2>
           <ol className="mt-3 space-y-2.5">
-            {openExerciseData.instructions.map((step, i) => (
+            {(openExerciseData.instructions ?? []).map((step, i) => (
               <li key={step} className="flex gap-3 text-sm text-muted-foreground">
                 <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-secondary text-xs font-bold text-primary">
                   {i + 1}
@@ -153,7 +200,7 @@ function SessionPage() {
             <AlertTriangle className="size-4" /> ERROS COMUNS
           </h2>
           <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-            {openExerciseData.commonMistakes.map((m) => (
+            {(openExerciseData.common_mistakes ?? []).map((m) => (
               <li key={m} className="flex gap-2">
                 <span className="text-flame">•</span> {m}
               </li>
@@ -204,17 +251,17 @@ function SessionPage() {
 
       <ul className="space-y-3">
         {workout.exercises.map((we, index) => {
-          const exercise = getExerciseById(we.exerciseId);
+          const exercise = bySlug.get(we.exerciseSlug);
           if (!exercise) return null;
-          const setLogs = logs[we.exerciseId] ?? [];
-          const complete = completedIds.has(we.exerciseId);
+          const setLogs = logs[we.exerciseSlug] ?? [];
+          const complete = completedIds.has(we.exerciseSlug);
           const isCurrent = index === currentIndex;
 
           return (
             <li key={we.id}>
               <button
                 type="button"
-                onClick={() => setOpenExercise(we.exerciseId)}
+                onClick={() => setOpenExercise(we.exerciseSlug)}
                 className={cn(
                   "surface surface-hover animate-rise-in flex w-full items-center gap-3 p-3 text-left",
                   complete && "border-primary/30 bg-primary/6",
