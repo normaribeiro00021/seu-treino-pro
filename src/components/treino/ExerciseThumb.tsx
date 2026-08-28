@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,9 @@ export function ExerciseThumb({
   className?: string;
   iconClassName?: string;
 }) {
+  const [thumbFailed, setThumbFailed] = useState(false);
+  const showThumb = Boolean(exercise.thumbnailUrl?.trim()) && !thumbFailed;
+
   return (
     <div
       className={cn(
@@ -29,11 +33,12 @@ export function ExerciseThumb({
         className,
       )}
     >
-      {exercise.thumbnailUrl ? (
+      {showThumb ? (
         <img
-          src={exercise.thumbnailUrl}
+          src={exercise.thumbnailUrl!}
           alt={exercise.name ? `Execução do exercício ${exercise.name}` : "Exercício"}
           loading="lazy"
+          onError={() => setThumbFailed(true)}
           className="absolute inset-0 size-full object-cover"
         />
       ) : (

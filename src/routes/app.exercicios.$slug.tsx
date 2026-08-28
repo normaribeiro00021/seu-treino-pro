@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { AlertTriangle, ArrowLeft, Heart, Info, Loader2 } from "lucide-react";
 import { ExerciseThumb } from "@/components/treino/ExerciseThumb";
 import { Button } from "@/components/ui/button";
@@ -158,18 +159,23 @@ function ExerciseDetail() {
 
 function ExerciseMedia({ exercise }: { exercise: DbExercise }) {
   const frame = "h-52 w-full overflow-hidden rounded-2xl border border-border sm:h-72";
+  const [failed, setFailed] = useState<string | null>(null);
 
-  if (exercise.video_url) {
+  const videoUrl = exercise.video_url?.trim() || null;
+  const gifUrl = exercise.gif_url?.trim() || null;
+  const thumbUrl = exercise.thumbnail_url?.trim() || null;
+
+  if (videoUrl && failed !== videoUrl) {
     return (
       <div className={cn(frame, "bg-secondary")}>
         <video
-          src={exercise.video_url}
-          poster={exercise.thumbnail_url ?? undefined}
-          loop
+          src={videoUrl}
           autoPlay
           muted
+          loop
           playsInline
-          controls
+          preload="metadata"
+          onError={() => setFailed(videoUrl)}
           aria-label={`Vídeo de execução do exercício ${exercise.name}`}
           className="size-full object-cover"
         />
@@ -177,12 +183,13 @@ function ExerciseMedia({ exercise }: { exercise: DbExercise }) {
     );
   }
 
-  if (exercise.gif_url) {
+  if (gifUrl && failed !== gifUrl) {
     return (
       <div className={cn(frame, "bg-secondary")}>
         <img
-          src={exercise.gif_url}
-          alt={`Animação da execução do exercício ${exercise.name}`}
+          src={gifUrl}
+          alt={exercise.name}
+          onError={() => setFailed(gifUrl)}
           className="size-full object-cover"
         />
       </div>
@@ -194,7 +201,7 @@ function ExerciseMedia({ exercise }: { exercise: DbExercise }) {
       exercise={{
         name: exercise.name,
         muscleGroup: exercise.muscle_group,
-        thumbnailUrl: exercise.thumbnail_url,
+        thumbnailUrl: thumbUrl,
       }}
       className={frame}
       iconClassName="size-14"
