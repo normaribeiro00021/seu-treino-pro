@@ -82,12 +82,12 @@ export function DebugSupabasePanel() {
               <p>ERRO: {state.exerciseError}</p>
             ) : state.exercise ? (
               <ul className="ml-3 list-disc">
-                <li>id: {String(state.exercise.id)}</li>
-                <li>name: {String(state.exercise.name)}</li>
-                <li>slug: {String(state.exercise.slug)}</li>
-                <li>video_url: {String(state.exercise.video_url ?? "null")}</li>
-                <li>gif_url: {String(state.exercise.gif_url ?? "null")}</li>
-                <li>thumbnail_url: {String(state.exercise.thumbnail_url ?? "null")}</li>
+                <li>id: {String(state.exercise["id"])}</li>
+                <li>name: {String(state.exercise["name"])}</li>
+                <li>slug: {String(state.exercise["slug"])}</li>
+                <li>video_url: {String(state.exercise["video_url"] ?? "null")}</li>
+                <li>gif_url: {String(state.exercise["gif_url"] ?? "null")}</li>
+                <li>thumbnail_url: {String(state.exercise["thumbnail_url"] ?? "null")}</li>
               </ul>
             ) : (
               <p>Registro não encontrado (0 linhas para esse slug).</p>
