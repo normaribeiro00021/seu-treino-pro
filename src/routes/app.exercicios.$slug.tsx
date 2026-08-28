@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { AlertTriangle, ArrowLeft, Heart, Info, Loader2 } from "lucide-react";
+import { DebugSupabasePanel } from "@/components/treino/DebugSupabasePanel";
 import { ExerciseThumb } from "@/components/treino/ExerciseThumb";
 import { Button } from "@/components/ui/button";
 import { exerciseBySlugQueryOptions, type DbExercise } from "@/lib/exercises-api";
@@ -49,6 +50,7 @@ function ExerciseDetail() {
   if (isPending) {
     return (
       <div className="space-y-5">
+        <DebugSupabasePanel />
         <div className="h-5 w-32 animate-pulse rounded bg-secondary" />
         <div className="h-8 w-3/4 animate-pulse rounded bg-secondary" />
         <div className="h-52 w-full animate-pulse rounded-2xl bg-secondary sm:h-72" />
@@ -63,7 +65,9 @@ function ExerciseDetail() {
 
   if (isError) {
     return (
-      <div className="rounded-2xl border border-flame/30 bg-flame/8 p-6 text-center">
+      <div className="space-y-5">
+        <DebugSupabasePanel />
+        <div className="rounded-2xl border border-flame/30 bg-flame/8 p-6 text-center">
         <AlertTriangle className="mx-auto size-6 text-flame" />
         <p className="mt-2 font-display font-bold">Erro ao carregar o exercício.</p>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -77,6 +81,7 @@ function ExerciseDetail() {
         >
           {isFetching && <Loader2 className="size-4 animate-spin" />} Tentar novamente
         </Button>
+        </div>
       </div>
     );
   }
@@ -88,6 +93,7 @@ function ExerciseDetail() {
 
   return (
     <div className="space-y-5">
+      <DebugSupabasePanel />
       <div className="flex items-center justify-between gap-3">
         <Link
           to="/app/exercicios"

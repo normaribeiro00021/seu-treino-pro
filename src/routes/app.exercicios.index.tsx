@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AlertTriangle, Loader2, Search, SlidersHorizontal } from "lucide-react";
+import { DebugSupabasePanel } from "@/components/treino/DebugSupabasePanel";
 import { ExerciseCard } from "@/components/treino/ExerciseCard";
 import { MuscleFilter } from "@/components/treino/MuscleFilter";
 import { PageHeader } from "@/components/treino/PageHeader";
@@ -68,6 +69,7 @@ function Biblioteca() {
 
   return (
     <div className="space-y-5">
+      <DebugSupabasePanel />
       <PageHeader
         eyebrow="EXERCÍCIOS"
         title="Biblioteca"
