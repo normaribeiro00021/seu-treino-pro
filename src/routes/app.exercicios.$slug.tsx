@@ -81,6 +81,7 @@ function ExerciseDetail() {
         >
           {isFetching && <Loader2 className="size-4 animate-spin" />} Tentar novamente
         </Button>
+        </div>
       </div>
     );
   }
